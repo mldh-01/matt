@@ -11,42 +11,85 @@
     }
     canvas {
       background: #111;
-      margin-top: 20px;
+      margin-top: 10px;
+      border: 2px solid white;
     }
   </style>
 </head>
 <body>
 
 <h1>🐍 Snake</h1>
-<p>Use arrow keys</p>
+<p>Score: <span id="score">0</span></p>
 <canvas id="game" width="300" height="300"></canvas>
+<p>Use arrow keys</p>
+<a href="../index.html" style="color:lightgreen;">⬅ Back to menu</a>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-let x = 150, y = 150;
-let dx = 10, dy = 0;
+const box = 10;
+let score = 0;
+
+let snake = [{ x: 150, y: 150 }];
+
+let food = {
+  x: Math.floor(Math.random() * 30) * box,
+  y: Math.floor(Math.random() * 30) * box
+};
+
+let dx = box;
+let dy = 0;
 
 function draw() {
   ctx.clearRect(0, 0, 300, 300);
-  ctx.fillStyle = "lime";
-  ctx.fillRect(x, y, 10, 10);
 
-  x += dx;
-  y += dy;
+  // draw snake
+  ctx.fillStyle = "lime";
+  snake.forEach(part => {
+    ctx.fillRect(part.x, part.y, box, box);
+  });
+
+  // draw food
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
+
+  // move snake
+  const head = {
+    x: snake[0].x + dx,
+    y: snake[0].y + dy
+  };
+
+  // wall collision
+  if (head.x < 0 || head.y < 0 || head.x >= 300 || head.y >= 300) {
+    alert("Game Over! Score: " + score);
+    location.reload();
+  }
+
+  // food collision
+  if (head.x === food.x && head.y === food.y) {
+    score++;
+    document.getElementById("score").innerText = score;
+    food = {
+      x: Math.floor(Math.random() * 30) * box,
+      y: Math.floor(Math.random() * 30) * box
+    };
+  } else {
+    snake.pop();
+  }
+
+  snake.unshift(head);
 }
 
 setInterval(draw, 100);
 
 document.addEventListener("keydown", e => {
-  if (e.key === "ArrowUp")    { dx = 0; dy = -10; }
-  if (e.key === "ArrowDown")  { dx = 0; dy = 10; }
-  if (e.key === "ArrowLeft")  { dx = -10; dy = 0; }
-  if (e.key === "ArrowRight") { dx = 10; dy = 0; }
+  if (e.key === "ArrowUp" && dy === 0)    { dx = 0; dy = -box; }
+  if (e.key === "ArrowDown" && dy === 0)  { dx = 0; dy = box; }
+  if (e.key === "ArrowLeft" && dx === 0)  { dx = -box; dy = 0; }
+  if (e.key === "ArrowRight" && dx === 0) { dx = box; dy = 0; }
 });
 </script>
 
 </body>
 </html>
-
